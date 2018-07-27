@@ -50,7 +50,7 @@ def modulacion_FM(señal,largo_señal,x,rate,K):
     fm=rate/2 #se requiere la mitad de la frecuencia dada por la funcion "read" para obtener la frecuencia de muestreo
     fc=5*fm #se requiere una frecuencia portadora minimo 4 veces mayor que la frecuencia de muestreo
     
-    
+    print (fc)
     wc=2*pi
     
     tiempo = float(largo_señal)/float(rate)#genero el tiempo del audio 
@@ -100,7 +100,8 @@ def modulacion_AM(señal,largo_señal,x,rate,K):
     x2 = linspace(0,tiempo,fc*tiempo)
     señal2=np.interp(x2, x,señal)  
     portadoraX=np.linspace(0,len(x2)/rate, num=len(x2))
-    
+    print("len(x2)/rate: ",len(x2)/rate)
+    print ("len(x2): ", len(x2))
     señal_portadora = KK*cos(wc*portadoraX)
     
     señal_modulada=señal2*señal_portadora
@@ -229,7 +230,7 @@ señal,largo_señal,x = obtener_datos_1(info,rate)
 
 sFM15,xFM15 = modulacion_FM(señal,largo_señal,x,rate,15)
 sAM15,xAM15 = modulacion_AM(señal,largo_señal,x,rate,15)
-sFM100,xFM100 = modulacion_FM(señal,largo_señal,x,rate,100)
+'''sFM100,xFM100 = modulacion_FM(señal,largo_señal,x,rate,100)
 sAM100,xAM100 = modulacion_AM(señal,largo_señal,x,rate,100)
 sFM125,xFM125 = modulacion_FM(señal,largo_señal,x,rate,125)
 sAM125,xAM125 = modulacion_AM(señal,largo_señal,x,rate,125)
@@ -259,7 +260,7 @@ x5,señal5 = desmodulador_AM(sAM125,len(sAM125),xAM125,rate)
 graficar_audio_respecto_tiempo(señal,x,"sin modular")
 graficar_audio_respecto_tiempo2(señal3,x3,"desmodulado","15")
 graficar_audio_respecto_tiempo2(señal4,x4,"desmodulado","100")
-graficar_audio_respecto_tiempo2(señal5,x5,"desmodulado","125")
+graficar_audio_respecto_tiempo2(señal5,x5,"desmodulado","125")'''
 
 
 
