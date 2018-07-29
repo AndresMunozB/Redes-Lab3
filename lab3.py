@@ -213,51 +213,71 @@ def demoduladorAM(y_modulada,y_portadora,rate_signal_2):
     x_demodulada, y_demodulada = appLowFilter(y_demodulada,rate_signal_2)
     return x_demodulada, y_demodulada
 
-#Obtencion de datos del audio
-y_signal, x_signal, rate_signal, time_signal, len_signal = getData("handel.wav")
+def execute(tipo,porcentaje):
+	y_signal, x_signal, rate_signal, time_signal, len_signal = getData("handel.wav")
 
-#Modulacion AM
+	if(tipo == "AM"):
+		x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulacionAM(y_signal,x_signal,len_signal,time_signal,porcentaje)
+		graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2,porcentaje,"Modulacion AM "+str(porcentaje))
 
-x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulacionAM(y_signal,x_signal,len_signal,time_signal,15)
-graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2,15,"Modulacion AM 15")
+		#Transformadas de Fourier Señal Original y Modulación 
+		x_fourier, y_fourier = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_2)
+		graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Original","Transformada de fourier Original")
 
+		x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_signal_2)
+		graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Modulación AM","Transformada de Fourier Modulación AM")
 
-#Transformadas de Fourier Señal Original y Modulación 
-x_fourier, y_fourier = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_2)
-graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Original","Transformada de fourier Original")
+		#DEMODULACIÓN AM, TRANSFORMADAS DE FOURIER ORIGINAL Y DEMODULADA
+		x_demodulada,y_demodulada = demoduladorAM(y_modulada,y_portadora,rate_signal_2)
+		#print(len(x_demodulada))
+		#print(len(y_demodulada))
+		x_fourier, y_fourier = fourierTransformation(y_demodulada, len(y_demodulada),rate_signal_2)
+		graphTransformation(x_fourier,y_fourier,"Transformada Demodulada AM","Transformada Demodulada AM")
+		graphTime(x_demodulada,y_demodulada,"Audio Demodulacion AM","Audio Demodulacion AM")
+		graphTime(x_signal,y_signal,"Audio Original","Audio Original")
 
-x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_signal_2)
-graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Modulación AM","Transformada de Fourier Modulación AM")
+	elif(tipo == "FM"):
+		x_signal_2,y_signal_2,x_portadora,y_portadora2,y_modulada2, rate_signal_3 = modulationFM(y_signal,x_signal,len_signal,time_signal,rate_signal,porcentaje)
+		graphModulationFM(x_signal_2,y_signal_2,x_portadora,y_portadora2,y_modulada2,rate_signal_3,porcentaje,"Modulacion FM "+str(porcentaje))
 
-#MODULACIÓN FM
+		x_fourier2, y_fourier2 = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_3)
+		graphTransformation(x_fourier2,y_fourier2,"Transformada Fourier Original","Transformada Fourier Original")
 
-x_signal_2,y_signal_2,x_portadora,y_portadora2,y_modulada2, rate_signal_3 = modulationFM(y_signal,x_signal,len_signal,time_signal,rate_signal,15)
-graphModulationFM(x_signal_2,y_signal_2,x_portadora,y_portadora2,y_modulada2,rate_signal_2,15,"Modulacion FM 15")
+		x_fourier2, y_fourier2 = fourierTransformation(y_modulada2, len(y_modulada2),rate_signal_3)
+		
+		graphTransformation(x_fourier2,y_fourier2,"Transformada Fourier Modulación FM","Transformada Fourier Modulación FM")
 
-x_fourier2, y_fourier2 = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_3)
-graphTransformation(x_fourier2,y_fourier2,"Transformada Fourier Original","Transformada Fourier Original")
+def printMenu():
+	print("		Menu\n")
+	print("1) Modulación AM al 15%")
+	print("2) Modulación AM al 100%")
+	print("3) Modulación AM al 125%")
+	print("4) Modulación FM al 15%")
+	print("5) Modulación FM al 100%")
+	print("6) Modulación FM al 125%")
+	print("7) Mostrar MENU")
+	print("8) Salir")
 
-x_fourier2, y_fourier2 = fourierTransformation(y_modulada2, len(y_modulada2),rate_signal_3)
-graphTransformation(x_fourier2,y_fourier2,"Transformada Fourier Modulación FM","Transformada Fourier Modulación FM")
+menu = "0"
+printMenu()
+while(True):
+	
+	menu = str(input("Ingrese una opcion: "))
+	if(menu == "1"):
+		execute("AM",15)
+	elif(menu == "2"):
+		execute("AM",100)
+	elif(menu == "3"):
+		execute("AM",125)
+	elif(menu == "4"):
+		execute("FM",15)
+	elif(menu == "5"):
+		execute("FM",100)
+	elif(menu == "6"):
+		execute("FM",125)
+	elif(menu == "7"):
+		printMenu()
+	elif(menu == "8"):
+		break
 
-#DEMODULACIÓN AM, TRANSFORMADAS DE FOURIER ORIGINAL Y DEMODULADA
-x_demodulada,y_demodulada = demoduladorAM(y_modulada,y_portadora,rate_signal_2)
-print(len(x_demodulada))
-print(len(y_demodulada))
-x_fourier, y_fourier = fourierTransformation(y_demodulada, len(y_demodulada),rate_signal_2)
-graphTransformation(x_fourier,y_fourier,"Transformada Demodulada AM","Transformada Demodulada AM")
-graphTime(x_demodulada,y_demodulada,"Audio Demodulacion AM","Audio Demodulacion AM")
-graphTime(x_signal,y_signal,"Audio Original","Audio Original")
-
-
-
-
-
-"""t2,señal2,portadoraX,señal_portadora,señal_modulada = modulationFM(señal,largo_señal,t,rate,100)
-graphModulationFM(t2,señal2,portadoraX,señal_portadora,señal_modulada,100)
-
-xfourier, fourierNorm = fourierTransformation(señal2, len(señal2),20000*4)
-graphTransformation(xfourier,fourierNorm,"real","figura")
-
-xfourier, fourierNorm = fourierTransformation(señal_modulada, len(señal_modulada),20000*4)
-graphTransformation(xfourier,fourierNorm,"modulada","figura")"""
+	
