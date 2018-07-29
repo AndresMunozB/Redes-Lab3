@@ -49,8 +49,6 @@ def modulacion_FM(señal,largo_señal,x,rate,K):
     KK = K/100
     fm=rate/2 #se requiere la mitad de la frecuencia dada por la funcion "read" para obtener la frecuencia de muestreo
     fc=5*fm #se requiere una frecuencia portadora minimo 4 veces mayor que la frecuencia de muestreo
-    
-    print (fc)
     wc=2*pi
     
     tiempo = float(largo_señal)/float(rate)#genero el tiempo del audio 
@@ -100,10 +98,7 @@ def modulacion_AM(señal,largo_señal,x,rate,K):
     x2 = linspace(0,tiempo,fc*tiempo)
     señal2=np.interp(x2, x,señal)  
     portadoraX=np.linspace(0,len(x2)/rate, num=len(x2))
-    print("len(x2)/rate: ",len(x2)/rate)
-    print ("len(x2): ", len(x2))
     señal_portadora = KK*cos(wc*portadoraX)
-    
     señal_modulada=señal2*señal_portadora
     
     

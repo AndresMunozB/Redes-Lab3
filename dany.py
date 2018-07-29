@@ -18,7 +18,7 @@ large = len(data)
 T = large/rate 
 
 t1 = np.linspace(0,T,large)    			#linspace(start,stop,number)
-
+"""
 t2 = np.linspace(0,T,200000*T)
 
 data1 = np.interp(t2, t1, data)
@@ -33,11 +33,11 @@ plt.plot(t2[1000:2000], carrier[1000:2000])
 plt.show()
 plt.plot(t2[1000:2000], am[1000:2000])
 plt.show()
-
+"""
 
 
 #Modulacion FM,  4 veces mas 
-"""
+
 t2_fm = np.linspace(0,T, 400000*T)
 
 data_fm = np.interp(t2_fm, t1, data)
@@ -58,4 +58,3 @@ fm = np.cos(np.pi*wct + audio_integrate*np.pi);
 
 plt.plot(t2_fm[1000:4000], fm[1000:4000])
 plt.show()
-"""
