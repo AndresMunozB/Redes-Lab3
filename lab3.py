@@ -95,25 +95,7 @@ def graphTransformation(xfourier,yfourier,text,figura):
 	plt.plot(xfourier,abs(yfourier))
 	savefig(figura)
 	plt.show()
-
    
-
-
-def graphModulationFM(t2,señal_interpolada,portadoraX,señal_portadora,señal_modulada,K):
-	plt.subplot(311)
-	plt.title("Señal del Audio")
-	plt.plot(t2[:200],señal_interpolada[:200],linewidth=0.4)
-	plt.subplot(312)
-	plt.title("Señal Portadora")
-	plt.plot(portadoraX[:200],señal_portadora[:200],linewidth=0.4)
-	plt.subplot(313)
-	plt.title("Modulación FM "+str(K)+" %")
-	plt.plot(t2[:200],señal_modulada[:200],linewidth=0.4)
-	plt.show()
-
-    
-    
-    
 #==============================================================================
 # Qué hace la función?: Realiza la modulación de una señal en frecuencia
 # Parámetros de entrada: señal, largo señal, vector del eje x de la señal, frecuencia moduladora
@@ -138,6 +120,25 @@ def modulationFM(y_signal,x_signal,len_signal,time_signal,rate_signal,K):
 	w= fm * x_signal_2
 	y_modulada= A*(np.cos(w*pi+KK*integral*pi))
 	return x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2
+
+#===============================================================================
+# Función: Grafica la modulación FM de la señal, mostrando la señal moduladora,
+# la portadora y la señal modulada.
+# Parámetros de entrada: ejes x e y de cada señal obtenida por la modulación FM.
+# Parámetros de salida: Ninguno, se muestra un gráfico por pantalla.
+#===============================================================================
+def graphModulationFM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2,K):
+	plt.subplot(311)
+	plt.title("Señal del Audio")
+	plt.plot(t2[:200],señal_interpolada[:200],linewidth=0.4)
+	plt.subplot(312)
+	plt.title("Señal Portadora")
+	plt.plot(portadoraX[:200],señal_portadora[:200],linewidth=0.4)
+	plt.subplot(313)
+	plt.title("Modulación FM "+str(K)+" %")
+	plt.plot(t2[:200],señal_modulada[:200],linewidth=0.4)
+	plt.show()
+
 #==============================================================================
 # Qué hace la función?: Realiza la modulación de una señal en amplitud
 # Parámetros de entrada: señal, largo señal, vector del eje x de la señal, frecuencia moduladora
@@ -146,29 +147,44 @@ def modulationFM(y_signal,x_signal,len_signal,time_signal,rate_signal,K):
 def modulacionAM(y_signal,x_signal,len_signal,time_signal,K):
 	KK = K/100
 	fc=30000 # Frecuencia en la que se modulará la señal
-	rate_signal_2 = len_signal*10/time_signal
+	rate_signal_2 = len_signal*10/time_signal #Nuevo "tiempo" para el resampling de la señal.
 	x_signal_2 = linspace(0,time_signal,len_signal*10)
 	y_signal_2 = np.interp(x_signal_2, x_signal,y_signal)  
 	
-
+	#Obtención de Wc para luego multiplicarlo por el arreglo tiempo de la portadora.
 	wc=2*np.pi*fc
-	x_portadora =x_signal_2
+	x_portadora = x_signal_2
+	#Función portadora.
 	y_portadora = KK*np.cos(wc * x_portadora)
+	#Obtención de la señal modulada.
 	y_modulada =y_signal_2*y_portadora
 
 	return x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2
 
-def graphModulationAM(x2,señal2,portadoraX,señal_portadora,señal_modulada,K):
+
+#===============================================================================
+# Función: Grafica la modulación AM de la señal, mostrando la señal moduladora,
+# la portadora y la señal modulada.
+# Parámetros de entrada: ejes x e y de cada señal obtenida por la modulación AM.
+# Parámetros de salida: Ninguno, se muestra un gráfico por pantalla.
+#===============================================================================
+def graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2,K,figura):
 	plt.subplot(311)
-	plt.title("Señal del Audio",fontsize = 10)
-	plt.plot(x2[:600],señal2[:600],linewidth=0.4)
+	plt.title("Señal del Audio")
+	plt.plot(x_signal_2[:600],y_signal_2[:600],linewidth=0.4)
 	plt.subplot(312)
-	plt.title("Señal Portadora",fontsize = 10)
-	plt.plot(portadoraX[:600],señal_portadora[:600],linewidth=0.4)
+	plt.title("Señal Portadora")
+	plt.plot(x_portadora[:600],y_portadora[:600],linewidth=0.4)
 	plt.subplot(313)
-	plt.title("Modulación AM "+str(K)+" %",fontsize = 10)
-	plt.plot(x2[:600],señal_modulada[:600],linewidth=0.4)
+	plt.title("Modulación AM "+str(K)+" %")
+	plt.plot(x_signal_2[:600],y_modulada[:600],linewidth=0.4)
+	savefig(figura)
 	plt.show()
+
+
+
+
+
 
 def appLowFilter(senal, rate):
     nyquist = rate/2
@@ -183,17 +199,18 @@ def appLowFilter(senal, rate):
     x = arange(0,time,1.0/float(rate))
     return x,filtered
 
-def demoduladorAM(x_modulada,y_modulada,largo_señal_modulada,rate_signal_2):
-    #y_demodulada=y_modulada/y_portadora
-    #x_demodulada = arange(0,len(y_modulada)/rate_signal_2,1.0/rate_signal_2)
-    #x_demodulada, y_demodulada = appLowFilter(y_demodulada,rate_signal_2)
-    #return x_demodulada, y_demodulada
-    fc=30000 #se requiere una frecuencia portadora minimo 4 veces mayor que la frecuencia de muestreo
-    wc=2*pi*fc
-    x_demodulada=np.linspace(0,len(x_modulada)/(rate_signal_2), num=len(x_modulada))
-    y_portadora = np.cos(wc*x_demodulada)
-    y_desmodulada=y_modulada/y_portadora 
-    return x_demodulada,y_desmodulada
+
+
+#=====================================================================================
+#Función: Función encargada de la demodulación AM de la señal.
+#Parámetros de entrada: señal modulada, señal portadora, con la nueva tasa de muestreo
+#Parámetros de salida: Eje x e y de la señal demodulada.
+#=====================================================================================
+def demoduladorAM(y_modulada,y_portadora,rate_signal_2):
+    y_demodulada=y_modulada/y_portadora
+    x_demodulada = linspace(0,len(y_modulada)/rate_signal_2,len(y_modulada))
+    x_demodulada, y_demodulada = appLowFilter(y_demodulada,rate_signal_2)
+    return x_demodulada, y_demodulada
 
 #Obtencion de datos del audio
 y_signal, x_signal, rate_signal, time_signal, len_signal = getData("handel.wav")
@@ -201,13 +218,15 @@ y_signal, x_signal, rate_signal, time_signal, len_signal = getData("handel.wav")
 #Modulacion AM
 
 x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulacionAM(y_signal,x_signal,len_signal,time_signal,15)
-#graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada,15)
+graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2,15,"Modulacion AM 15")
 
+
+#Transformadas de Fourier Señal Original y Modulación AM
 x_fourier, y_fourier = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_2)
-graphTransformation(x_fourier,y_fourier,"Transformada Original","figura")
+graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Original","Transformada de fourier Original")
 
 x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_signal_2)
-graphTransformation(x_fourier,y_fourier,"Transformada Modulación AM","figura")
+graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Modulación AM","Transformada de Fourier Modulación AM")
 
 """"
 x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulationFM(y_signal,x_signal,len_signal,time_signal,rate_signal,100)
@@ -220,13 +239,15 @@ x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_si
 graphTransformation(x_fourier,y_fourier,"real","figura")
 
 """
-x_demodulada,y_demodulada = demoduladorAM(x_signal_2,y_modulada,len(y_modulada),rate_signal_2)
+
+#DEMODULACIÓN AM, TRANSFORMADAS DE FOURIER ORIGINAL Y DEMODULADA
+x_demodulada,y_demodulada = demoduladorAM(y_modulada,y_portadora,rate_signal_2)
 print(len(x_demodulada))
 print(len(y_demodulada))
 x_fourier, y_fourier = fourierTransformation(y_demodulada, len(y_demodulada),rate_signal_2)
-graphTransformation(x_fourier,y_fourier,"Transformada Demodulada AM","figura")
-graphTime(x_demodulada,y_demodulada,"Audio Demodulacion","hola")
-graphTime(x_signal,y_signal,"Audio Original","hola")
+graphTransformation(x_fourier,y_fourier,"Transformada Demodulada AM","Transformada Demodulada AM")
+graphTime(x_demodulada,y_demodulada,"Audio Demodulacion AM","Audio Demodulacion AM")
+graphTime(x_signal,y_signal,"Audio Original","Audio Original")
 
 
 
