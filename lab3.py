@@ -44,6 +44,14 @@ def getDatos(info,rate):
 	#print(t)
 	return senal, len_signal, t
 
+def getData(nameFile):
+	rate_signal,y_signal=read(nameFile)
+	len_signal = len(y_signal)
+	time_signal =  len_signal /float(rate_signal)
+	x_signal = linspace(0, time_signal, len_signal)
+	return y_signal, x_signal, rate_signal, time_signal, len_signal
+
+
 #=============================================================================
 # Función: Grafica los datos del audio en función del tiempo.
 # Parámetros de entrada: El arreglo con los datos del tiempo y los datos de la
@@ -149,18 +157,20 @@ def graphModulationFM(t2,señal_interpolada,portadoraX,señal_portadora,señal_m
 # Parámetros de entrada: señal, largo señal, vector del eje x de la señal, frecuencia moduladora
 # Parámetros de salida: NINGUNO
 #==============================================================================    
-def modulacionAM(señal,largo_señal,t,rate,K):
+def modulacionAM(y_signal,x_signal,len_signal,time_signal,K):
 	KK = K/100
-	fc=30000
-	print(fc)
+	fc=30000 # Frecuencia en la que se modulará la señal
+	rate_signal_2 = len_signal*10/time_signal
+	x_signal_2 = linspace(0,time_signal,len_signal*10)
+	y_signal_2 = np.interp(x_signal_2, x_signal,y_signal)  
+	
+
 	wc=2*np.pi*fc
-	tiempo = float(largo_señal)/float(rate)
-	t2 = linspace(0,tiempo,largo_señal*10)
-	señal2=np.interp(t2, t,señal)  
-	portadoraX=np.linspace(0,tiempo, num = len(t2))
-	señal_portadora = KK*np.cos(wc*portadoraX)
-	señal_modulada=señal2*señal_portadora
-	return t2,señal2,portadoraX,señal_portadora,señal_modulada
+	x_portadora =x_signal_2
+	y_portadora = KK*np.cos(wc * x_portadora)
+	y_modulada =y_signal_2*y_portadora
+
+	return x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2
 
 def graphModulationAM(x2,señal2,portadoraX,señal_portadora,señal_modulada,K):
 	plt.subplot(311)
@@ -174,17 +184,21 @@ def graphModulationAM(x2,señal2,portadoraX,señal_portadora,señal_modulada,K):
 	plt.plot(x2[:600],señal_modulada[:600],linewidth=0.4)
 	plt.show()
 
-rate,info=read("handel.wav")
 
-señal,largo_señal,t = getDatos(info,rate)
-tiempo = largo_señal/rate
-t2,señal2,portadoraX,señal_portadora,señal_modulada = modulacionAM(señal,largo_señal,t,rate,15)
-graphModulationAM(t2,señal2,portadoraX,señal_portadora,señal_modulada,15)
+#Obtencion de datos del audio
+y_signal, x_signal, rate_signal, time_signal, len_signal = getData("handel.wav")
 
-xfourier, fourierNorm = fourierTransformation(señal2,len(señal2),len(señal2)/tiempo)
-graphTransformation(xfourier, fourierNorm,"real","figura")
-xfourier, fourierNorm = fourierTransformation(señal_modulada,len(señal2),len(señal2)/tiempo)
-graphTransformation(xfourier, fourierNorm,"modulada","figura")
+#Modulacion AM
+
+x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulacionAM(y_signal,x_signal,len_signal,time_signal,15)
+graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada,15)
+
+x_fourier, y_fourier = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_2)
+graphTransformation(x_fourier,y_fourier,"real","figura")
+
+x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_signal_2)
+graphTransformation(x_fourier,y_fourier,"real","figura")
+
 
 
 
