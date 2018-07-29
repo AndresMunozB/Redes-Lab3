@@ -87,7 +87,7 @@ def fourier2(data, rate):
 	k = np.arange(-len(Tdata)/2,len(Tdata)/2)
 	frq = k/timp
 	frq = fftshift(frq)
-	return Tdata,frq
+	return frq,Tdata
 
 #===============================================================================
 # Función: Grafica la transformada de Fourier, usando los arreglos de la función
@@ -151,10 +151,11 @@ def graphModulationFM(t2,señal_interpolada,portadoraX,señal_portadora,señal_m
 #==============================================================================    
 def modulacionAM(señal,largo_señal,t,rate,K):
 	KK = K/100
-	fc=50000
+	fc=30000
+	print(fc)
 	wc=2*np.pi*fc
 	tiempo = float(largo_señal)/float(rate)
-	t2 = linspace(0,tiempo,fc*4)
+	t2 = linspace(0,tiempo,largo_señal*10)
 	señal2=np.interp(t2, t,señal)  
 	portadoraX=np.linspace(0,tiempo, num = len(t2))
 	señal_portadora = KK*np.cos(wc*portadoraX)
@@ -174,23 +175,24 @@ def graphModulationAM(x2,señal2,portadoraX,señal_portadora,señal_modulada,K):
 	plt.show()
 
 rate,info=read("handel.wav")
+
 señal,largo_señal,t = getDatos(info,rate)
+tiempo = largo_señal/rate
 t2,señal2,portadoraX,señal_portadora,señal_modulada = modulacionAM(señal,largo_señal,t,rate,15)
 graphModulationAM(t2,señal2,portadoraX,señal_portadora,señal_modulada,15)
 
-
-xfourier, fourierNorm = fourierTransformation(señal2,len(señal2),50000*4)
+xfourier, fourierNorm = fourierTransformation(señal2,len(señal2),len(señal2)/tiempo)
 graphTransformation(xfourier, fourierNorm,"real","figura")
-xfourier, fourierNorm = fourierTransformation(señal_modulada,len(señal2),50000*4)
+xfourier, fourierNorm = fourierTransformation(señal_modulada,len(señal2),len(señal2)/tiempo)
 graphTransformation(xfourier, fourierNorm,"modulada","figura")
 
 
 
-t2,señal2,portadoraX,señal_portadora,señal_modulada = modulationFM(señal,largo_señal,t,rate,100)
+"""t2,señal2,portadoraX,señal_portadora,señal_modulada = modulationFM(señal,largo_señal,t,rate,100)
 graphModulationFM(t2,señal2,portadoraX,señal_portadora,señal_modulada,100)
 
 xfourier, fourierNorm = fourierTransformation(señal2, len(señal2),20000*4)
 graphTransformation(xfourier,fourierNorm,"real","figura")
 
 xfourier, fourierNorm = fourierTransformation(señal_modulada, len(señal_modulada),20000*4)
-graphTransformation(xfourier,fourierNorm,"modulada","figura")
+graphTransformation(xfourier,fourierNorm,"modulada","figura")"""
