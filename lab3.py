@@ -183,10 +183,17 @@ def appLowFilter(senal, rate):
     x = arange(0,time,1.0/float(rate))
     return x,filtered
 
-def demoduladorAM(y_modulada,y_portadora,rate_signal_2):
-    y_demodulada=y_modulada/y_portadora
-    x_demodulada, y_demodulada = appLowFilter(y_demodulada,rate_signal_2)
-    return x_demodulada, y_demodulada/2
+def demoduladorAM(x_modulada,y_modulada,largo_señal_modulada,rate_signal_2):
+    #y_demodulada=y_modulada/y_portadora
+    #x_demodulada = arange(0,len(y_modulada)/rate_signal_2,1.0/rate_signal_2)
+    #x_demodulada, y_demodulada = appLowFilter(y_demodulada,rate_signal_2)
+    #return x_demodulada, y_demodulada
+    fc=30000 #se requiere una frecuencia portadora minimo 4 veces mayor que la frecuencia de muestreo
+    wc=2*pi*fc
+    x_demodulada=np.linspace(0,len(x_modulada)/(rate_signal_2), num=len(x_modulada))
+    y_portadora = np.cos(wc*x_demodulada)
+    y_desmodulada=y_modulada/y_portadora 
+    return x_demodulada,y_desmodulada
 
 #Obtencion de datos del audio
 y_signal, x_signal, rate_signal, time_signal, len_signal = getData("handel.wav")
@@ -197,10 +204,10 @@ x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modula
 #graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada,15)
 
 x_fourier, y_fourier = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_2)
-#graphTransformation(x_fourier,y_fourier,"real","figura")
+graphTransformation(x_fourier,y_fourier,"Transformada Original","figura")
 
 x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_signal_2)
-#graphTransformation(x_fourier,y_fourier,"real","figura")
+graphTransformation(x_fourier,y_fourier,"Transformada Modulación AM","figura")
 
 """"
 x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulationFM(y_signal,x_signal,len_signal,time_signal,rate_signal,100)
@@ -213,11 +220,13 @@ x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_si
 graphTransformation(x_fourier,y_fourier,"real","figura")
 
 """
-x_demodulada,y_demodulada = demoduladorAM(y_modulada,x_signal_2,rate_signal_2)
+x_demodulada,y_demodulada = demoduladorAM(x_signal_2,y_modulada,len(y_modulada),rate_signal_2)
+print(len(x_demodulada))
+print(len(y_demodulada))
 x_fourier, y_fourier = fourierTransformation(y_demodulada, len(y_demodulada),rate_signal_2)
-graphTransformation(x_fourier,y_fourier,"real","figura")
-graphTime(x_demodulada,y_demodulada,"hola","hola")
-graphTime(x_signal,y_signal,"hola","hola")
+graphTransformation(x_fourier,y_fourier,"Transformada Demodulada AM","figura")
+graphTime(x_demodulada,y_demodulada,"Audio Demodulacion","hola")
+graphTime(x_signal,y_signal,"Audio Original","hola")
 
 
 
