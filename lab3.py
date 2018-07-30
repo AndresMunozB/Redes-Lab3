@@ -21,29 +21,13 @@ from math import pi
 warnings.filterwarnings('ignore')
 
 #==============================================================================
-# Función: En base a los datos que entrega beacon.wav se obtiene			   
+# Función: En base a los datos que entrega handel.wav se obtiene			   
 # los datos de la señal, la cantidad de datos que esta tiene, y el tiempo que  
 # que dura el audio.														   
 # Parámetros de entrada: Matriz con los datos de la amplitud del audio.
 # Parámetros de salida: Vector con la señal a trabajar, el largo de la señal y 
-# un vector con los tiempos de la señal.
+# un vector con los tiempos de la señal, su frecuencia de muestro y su tiempo.
 #==============================================================================
-def getDatos(info,rate):
-	#Datos del audio.
-	senal = info
-	#print(signal)
-	#Largo de todos los datos.
-	len_signal = len(senal)
-	#Transformado a float.
-	len_signal = float(len_signal)
-	#Duración del audio.
-	time = len_signal/float(rate)
-	#print(time)
-	#Eje x para el gráfico, de 0 a la duración del audio.
-	t = linspace(0, time, len_signal)
-	#print(t)
-	return senal, len_signal, t
-
 def getData(nameFile):
 	rate_signal,y_signal=read(nameFile)
 	len_signal = len(y_signal)
@@ -145,7 +129,7 @@ def graphModulationFM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, 
 # Parámetros de entrada: señal, largo señal, vector del eje x de la señal, frecuencia moduladora
 # Parámetros de salida: NINGUNO
 #==============================================================================    
-def modulacionAM(y_signal,x_signal,len_signal,time_signal,K):
+def modulationAM(y_signal,x_signal,len_signal,time_signal,K):
 	KK = K/100
 	fc=30000 # Frecuencia en la que se modulará la señal
 	rate_signal_2 = len_signal*10/time_signal #Nuevo "tiempo" para el resampling de la señal.
@@ -183,10 +167,11 @@ def graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, 
 	plt.show()
 
 
-
-
-
-
+#==================================================================================
+#Función: Filtro Paso Bajo para la señal que se le entrega.
+#Parámetros de entrada: Señal que se le hace el filtro y su frecuencia de muestreo
+#Parámetros de salida: Eje x e y de la señal filtrada.
+#==================================================================================
 def appLowFilter(senal, rate):
     nyquist = rate/2
     lowcut = 10000
@@ -207,45 +192,48 @@ def appLowFilter(senal, rate):
 #Parámetros de entrada: señal modulada, señal portadora, con la nueva tasa de muestreo
 #Parámetros de salida: Eje x e y de la señal demodulada.
 #=====================================================================================
-def demoduladorAM(y_modulada,y_portadora,rate_signal_2):
+def demodulatorAM(y_modulada,y_portadora,rate_signal_2):
     y_demodulada=y_modulada/y_portadora
     x_demodulada = linspace(0,len(y_modulada)/rate_signal_2,len(y_modulada))
     x_demodulada, y_demodulada = appLowFilter(y_demodulada,rate_signal_2)
     return x_demodulada, y_demodulada
 
+
+
 def execute(tipo,porcentaje):
 	y_signal, x_signal, rate_signal, time_signal, len_signal = getData("handel.wav")
 
 	if(tipo == "AM"):
-		x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulacionAM(y_signal,x_signal,len_signal,time_signal,porcentaje)
-		graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2,porcentaje,"Modulacion AM "+str(porcentaje))
+		x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2 = modulationAM(y_signal,x_signal,len_signal,time_signal,porcentaje)
+		graphModulationAM(x_signal_2,y_signal_2,x_portadora,y_portadora,y_modulada, rate_signal_2,porcentaje,"MOD_AM_"+str(porcentaje))
 
 		#Transformadas de Fourier Señal Original y Modulación 
 		x_fourier, y_fourier = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_2)
-		graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Original","Transformada de fourier Original")
+		graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Original","TFO_AM_"+str(porcentaje))
 
 		x_fourier, y_fourier = fourierTransformation(y_modulada, len(y_modulada),rate_signal_2)
-		graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Modulación AM","Transformada de Fourier Modulación AM")
+		graphTransformation(x_fourier,y_fourier,"Transformada de Fourier Modulación AM "+str(porcentaje)+"%","TFM_AM_"+str(porcentaje))
 
 		#DEMODULACIÓN AM, TRANSFORMADAS DE FOURIER ORIGINAL Y DEMODULADA
-		x_demodulada,y_demodulada = demoduladorAM(y_modulada,y_portadora,rate_signal_2)
+		x_demodulada,y_demodulada = demodulatorAM(y_modulada,y_portadora,rate_signal_2)
 		#print(len(x_demodulada))
 		#print(len(y_demodulada))
 		x_fourier, y_fourier = fourierTransformation(y_demodulada, len(y_demodulada),rate_signal_2)
-		graphTransformation(x_fourier,y_fourier,"Transformada Demodulada AM","Transformada Demodulada AM")
-		graphTime(x_demodulada,y_demodulada,"Audio Demodulacion AM","Audio Demodulacion AM")
-		graphTime(x_signal,y_signal,"Audio Original","Audio Original")
+		graphTransformation(x_fourier,y_fourier,"Transformada Demodulada AM "+str(porcentaje)+"%","TD_AM_"+str(porcentaje))
+		graphTime(x_demodulada,y_demodulada,"Audio Demodulacion AM "+str(porcentaje)+"%","AD_AM"+str(porcentaje))
+		graphTime(x_signal,y_signal,"Audio Original","AO")
 
 	elif(tipo == "FM"):
 		x_signal_2,y_signal_2,x_portadora,y_portadora2,y_modulada2, rate_signal_3 = modulationFM(y_signal,x_signal,len_signal,time_signal,rate_signal,porcentaje)
-		graphModulationFM(x_signal_2,y_signal_2,x_portadora,y_portadora2,y_modulada2,rate_signal_3,porcentaje,"Modulacion FM "+str(porcentaje))
+		graphModulationFM(x_signal_2,y_signal_2,x_portadora,y_portadora2,y_modulada2,rate_signal_3,porcentaje,"MOD_FM_"+str(porcentaje))
 
 		x_fourier2, y_fourier2 = fourierTransformation(y_signal_2, len(y_signal_2),rate_signal_3)
-		graphTransformation(x_fourier2,y_fourier2,"Transformada Fourier Original","Transformada Fourier Original")
+		graphTransformation(x_fourier2,y_fourier2,"Transformada de Fourier Original FM","TFO_FM_"+str(porcentaje))
 
 		x_fourier2, y_fourier2 = fourierTransformation(y_modulada2, len(y_modulada2),rate_signal_3)
 		
-		graphTransformation(x_fourier2,y_fourier2,"Transformada Fourier Modulación FM","Transformada Fourier Modulación FM")
+		graphTransformation(x_fourier2,y_fourier2,"Transformada de Fourier Modulación FM "+str(porcentaje)+"%","TFM_FM_"+str(porcentaje))
+
 
 def printMenu():
 	print("		Menu\n")
@@ -256,8 +244,12 @@ def printMenu():
 	print("5) Modulación FM al 100%")
 	print("6) Modulación FM al 125%")
 	print("7) Mostrar MENU")
-	print("8) Salir")
+	print("8) Salir\n\n")
+	print("NOTA: Solo en modulación AM se utiliza la demodulación")
+	print("      ya que la demodulación AM es la que se utiliza.\n")
 
+
+#BLOQUE PRINCIPAL
 menu = "0"
 printMenu()
 while(True):
